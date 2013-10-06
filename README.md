@@ -1,6 +1,8 @@
 USC CSCI480 Computer Graphics
 =========================
 Author: Josh Luo
+
+
 Assignments: http://dl.dropboxusercontent.com/u/91263185/CS480-f13/projects/index.html
 
 1. Assignment 1 - Height Field
