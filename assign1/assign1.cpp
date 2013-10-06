@@ -1,273 +1,249 @@
 /*
-  15-462 Computer Graphics I
+  CSCI 480 Computer Graphics
   Assignment 1: Height Fields
-  C sample solution
-  Author: fp, loosely based on C++ code (jsk2)
-  Feb 2002
+  C++ starter code
 */
 
 #include <stdlib.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #include <pic.h>
 
-const int WIDTH = 640;    /* initial window width */
-const int HEIGHT = 480;   /* initial window height */
-const GLdouble FOV = 40.0;  /* perspective field of view */
+/* Define the windows size */
+int WIDTH = 640;
+int HEIGHT = 480;
 
-/* most recent mouse position in screen coordinates */
-/* only differences are relevant, not absolute positions */
-int xMousePos = 0;
-int yMousePos = 0;
+int g_iMenuId;
 
-/* mouse button state, 1 if down, 0 if up */
-int leftMouseButton = 0;
-int middleMouseButton = 0;
-int rightMouseButton = 0;
+int g_vMousePos[2] = {0, 0};
+int g_iLeftMouseButton = 0;    /* 1 if pressed, 0 if not */
+int g_iMiddleMouseButton = 0;
+int g_iRightMouseButton = 0;
 
-/* control state derived from mouse button state */
 typedef enum { ROTATE, TRANSLATE, SCALE } CONTROLSTATE;
-CONTROLSTATE controlState = ROTATE;
+CONTROLSTATE g_ControlState = ROTATE;
 
 /* state of the world */
-float landRotate[3] = {0.0, 0.0, 0.0};
-float landTranslate[3] = {0.0, 0.0, 0.0};
-float landScale[3] = {1.0, 1.0, 1.0};
+float g_vLandRotate[3] = {0.0, 0.0, 0.0};
+float g_vLandTranslate[3] = {0.0, 0.0, 0.0};
+float g_vLandScale[3] = {1.0, 1.0, 1.0};
 
-/* see pic.h for type Pic */
-Pic *heightData;
+/* see <your pic directory>/pic.h for type Pic */
+Pic * g_pHeightData;
 
-/* initializing GL */
-void init()
+
+
+
+
+/***** Display methods *****/
+
+void myinit()
 {
+  /* setup gl view here */
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glEnable(GL_DEPTH_TEST);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-/* draw floor in medium green */
-void drawFloor()
-{
-  glColor3f(0.0, 0.75, 0.0);
-  glBegin(GL_QUADS);
-    glVertex3f(-0.5, -0.5, 0.0);
-    glVertex3f(-0.5, 0.5, 0.0);
-    glVertex3f(0.5, 0.5, 0.0);
-    glVertex3f(0.5, -0.5, 0.0);
-  glEnd();
-}
+/* Height Field drawing function */
 
-/* drax x and y axes in medium red */
-void drawXYAxes()
-{
-  glColor3f(0.75, 0.0, 0.0);
-  glBegin(GL_LINES);
-    glVertex3f(-0.5, 0.0, 0.0);
-    glVertex3f(0.5, 0.0, 0.0);
-    glVertex3f(0.0, -0.5, 0.0);
-    glVertex3f(0.0, 0.5, 0.0);
-  glEnd();
-}
-
-/* draw z axis in medium red */
-void drawZAxis()
-{
-  glColor3f(0.75, 0.0, 0.0);
-  glBegin(GL_LINES);
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 0.0, 1.0);
-  glEnd();
-}
-
-/* draw height field in blue to white */
-/* into cube -0.5 <= x,y < 0.5, 0.0 <= z <= 1.0 */
-/* based on blue component of picture heightData */
-/* if polygonmode = GL_POINT every point will be drawn twice */
-/* this could be fixed with a small amount of additional complexity */
-void drawHeightField()
-{
-  int i, j;
-  GLfloat x, y, z;
-  int nx = heightData->nx;  /* number of x-pixels */
-  int ny = heightData->ny;  /* number of y-pixels */
-  GLfloat s = (nx >= ny) ? nx : ny;  /* scale to preserve aspect ratio */
-  for (i = 0; i < nx-1; i++)
-  {
-    x = (GLfloat) i;
-    glBegin(GL_TRIANGLE_STRIP);
-    for (j = 0; j < ny; j++)
-    {
-      y = (GLfloat) j;
-      z = (GLfloat) PIC_PIXEL(heightData, i, j, 2);
-      glColor3f(z/255.0, z/255.0, 1.0);
-      glVertex3f(x/s-0.5, y/s-0.5, z/255.0);
-
-      z = (GLfloat) PIC_PIXEL(heightData, i+1, j, 2);
-      glColor3f(z/255.0, z/255.0, 1.0);
-      glVertex3f((x+1.0)/s-0.5, y/s-0.5, z/255.0);
-    }
-    glEnd();
-  }
-}
 
 /* display callback */
-/* draw height field, floor and coordinate axes */
-/* scaled, rotated, and translated */
 void display()
 {
+  /* draw 1x1 cube about origin */
+  /* replace this code with your height field implementation */
+  /* you may also want to precede it with your 
+rotation/translation/scaling */
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
   glLoadIdentity();
-  gluLookAt(-1.0,-2.0,1.0, 0.0,0.0,0.5, 0.0,0.0,1.0);
 
-  glTranslatef(landTranslate[0], landTranslate[1], landTranslate[2]);
+  /* Transform to the current world state */
+  glTranslatef(g_vLandTranslate[0], g_vLandTranslate[1], g_vLandTranslate[2]);
+  glRotatef(g_vLandRotate[0], 1.0, 0.0, 0.0);
+  glRotatef(g_vLandRotate[1], 0.0, 1.0, 0.0);
+  glRotatef(g_vLandRotate[2], 0.0, 0.0, 1.0);
+  glScalef(g_vLandScale[0], g_vLandScale[1], g_vLandScale[2]);
 
-  glRotatef(landRotate[0], 1.0, 0.0, 0.0);
-  glRotatef(landRotate[1], 0.0, 1.0, 0.0);
-  glRotatef(landRotate[2], 0.0, 0.0, 1.0);
 
-  glScalef(landScale[0], landScale[1], landScale[2]);
+  glBegin(GL_POLYGON);
 
-  /* draw x-y-axes on top of floor */
-  /* use just depth buffer (instead of stencil buffer) */
-  glDepthMask(GL_FALSE);  /* set depth buffer to read-only */
-  drawFloor();      /* draw floor into color buffer (only) */
-  glDepthMask(GL_TRUE);   /* set depth buffer to read-write */
-  drawXYAxes();     /* draw x-y-axes normally */
-  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        /* set color buffer to read-only */
-  drawFloor();      /* draw floor into depth-buffer (only) */
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        /* set color buffer to read-write */
+  glColor3f(1.0, 1.0, 1.0);
+  glVertex3f(-0.5, -0.5, 0.0);
+  glColor3f(0.0, 0.0, 1.0);
+  glVertex3f(-0.5, 0.5, 0.0);
+  glColor3f(0.0, 0.0, 0.0);
+  glVertex3f(0.5, 0.5, 0.0);
+  glColor3f(1.0, 1.0, 0.0);
+  glVertex3f(0.5, -0.5, 0.0);
 
-  glTranslatef(0.0, 0.0, 0.01); /* move up slightly to prevent floor overlap */
-  drawZAxis();      /* draw z-axis normally */
-  drawHeightField();    /* draw height field normally */
+  glEnd();
 
-  glFlush();
+  glFlush(); // force execution of GL commands in finite time
   glutSwapBuffers();
 }
 
-/* mouse drag callback */
-/* converts mouse drags to scaling, rotations, and translations */
-/* left mouse button controls x and y axes */
-/* right mouse button controls z axes (height) */
+void doIdle()
+{
+  /* do some stuff... */
+
+  /* make the screen update */
+  glutPostRedisplay();
+}
+
+
+
+
+
+/***** Interaction callback methods *****/
+/* converts mouse drags into information about 
+rotation/translation/scaling */
 void mousedrag(int x, int y)
 {
-  int dx = x-xMousePos;
-  int dy = -(y-yMousePos); /* invert y-movement from screen coordinates */
-
-  switch (controlState)
+  int vMouseDelta[2] = {x-g_vMousePos[0], y-g_vMousePos[1]};
+  
+  switch (g_ControlState)
   {
     case TRANSLATE:  
-      if (leftMouseButton)
+      if (g_iLeftMouseButton)
       {
-        landTranslate[0] += dx*0.01;
-        landTranslate[1] += dy*0.01;
+        g_vLandTranslate[0] += vMouseDelta[0]*0.01;
+        g_vLandTranslate[1] -= vMouseDelta[1]*0.01;
       }
-      if (middleMouseButton)
+      if (g_iMiddleMouseButton)
       {
-        landTranslate[2] += dy*0.01;
+        g_vLandTranslate[2] += vMouseDelta[1]*0.01;
       }
       break;
     case ROTATE:
-      if (leftMouseButton)
+      if (g_iLeftMouseButton)
       {
-        landRotate[0] -= dy; /* drag up = clockwise around x-axis */
-        landRotate[1] += dx; /* drag right = counter-clockwise around y-axis */
+        g_vLandRotate[0] += vMouseDelta[1];
+        g_vLandRotate[1] += vMouseDelta[0];
       }
-      if (middleMouseButton)
+      if (g_iMiddleMouseButton)
       {
-        landRotate[2] += dx; /* drag right = counter-clockwise around z-axis */
+        g_vLandRotate[2] += vMouseDelta[1];
       }
       break;
     case SCALE:
-      if (leftMouseButton)
+      if (g_iLeftMouseButton)
       {
-        landScale[0] *= 1.0+dx*0.01; /* drag right = scale up in x-direction */
-        landScale[1] *= 1.0+dy*0.01; /* drag up = scale up in y-direction */
+        g_vLandScale[0] *= 1.0+vMouseDelta[0]*0.01;
+        g_vLandScale[1] *= 1.0-vMouseDelta[1]*0.01;
       }
-      if (middleMouseButton)
+      if (g_iMiddleMouseButton)
       {
-        landScale[2] *= 1.0+dy*0.01; /* drag up = scale up in z-direction */
+        g_vLandScale[2] *= 1.0-vMouseDelta[1]*0.01;
       }
       break;
   }
-  xMousePos = x;
-  yMousePos = y;
-
-  glutPostRedisplay();
+  g_vMousePos[0] = x;
+  g_vMousePos[1] = y;
 }
 
-/* mouse callback */
-/* set state based on modifier key */
-/* ctrl = translate, shift = scale, otherwise rotate */
+void mouseidle(int x, int y)
+{
+  g_vMousePos[0] = x;
+  g_vMousePos[1] = y;
+}
+
 void mousebutton(int button, int state, int x, int y)
 {
+
   switch (button)
   {
     case GLUT_LEFT_BUTTON:
-      leftMouseButton = (state==GLUT_DOWN);
+      g_iLeftMouseButton = (state==GLUT_DOWN);
       break;
     case GLUT_MIDDLE_BUTTON:
-      middleMouseButton = (state==GLUT_DOWN);
+      g_iMiddleMouseButton = (state==GLUT_DOWN);
       break;
-    case GLUT_RIGHT_BUTTON: /* right button not used */
-      rightMouseButton = (state==GLUT_DOWN);
+    case GLUT_RIGHT_BUTTON:
+      g_iRightMouseButton = (state==GLUT_DOWN);
       break;
   }
+ 
   switch(glutGetModifiers())
   {
     case GLUT_ACTIVE_CTRL:
-      controlState = TRANSLATE;
+      g_ControlState = TRANSLATE;
       break;
     case GLUT_ACTIVE_SHIFT:
-      controlState = SCALE;
+      g_ControlState = SCALE;
       break;
     default:
-      controlState = ROTATE;
+      g_ControlState = ROTATE;
       break;
   }
-  xMousePos = x;
-  yMousePos = y;
+
+  g_vMousePos[0] = x;
+  g_vMousePos[1] = y;
 }
 
-/* reshape callback */
+
+
+
+
+/***** Helper Method *****/
 /* set projection to aspect ratio of window */
-void reshape(int w, int h)
-{
-    GLfloat aspect = (GLfloat) w / (GLfloat) h;
-    /* scale viewport with window */
-    glViewport(0, 0, w, h);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(FOV, aspect, 1.0, 100.0);
-    glMatrixMode(GL_MODELVIEW);
-}
-
-/* keyboard callback */
-/* switch polygon mode or exit */
-void keyboard(unsigned char key, int x, int y)
-{
-  switch (key) {
-  case 'q': case 'Q':
-    exit(0);
-    break;
-  case 'f': case 'F':
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    break;
-  case 'l': case 'L':
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    break;
-  case 'p': case 'P':
-    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-    break;
+void reshape(int w, int h){
+  GLfloat aspect = (GLfloat) w / (GLfloat) h;
+  glViewport(0, 0, w, h);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  if(w <= h){
+    glOrtho(-2.0, 2.0, -2.0/aspect, 2.0/aspect, -10.0, 10.0);
+  } else {
+    glOrtho(-2.0*aspect, 2.0*aspect, -2.0, 2.0, -10.0, 10.0);
   }
-  glutPostRedisplay();
+  glMatrixMode(GL_MODELVIEW);
 }
 
-/* main function */
-int main (int argc, char **argv)
+void menufunc(int value)
+{
+  switch (value)
+  {
+    case 0:
+      exit(0);
+      break;
+  }
+}
+
+/* Write a screenshot to the specified filename */
+void saveScreenshot (char *filename)
+{
+  int i, j;
+  Pic *in = NULL;
+
+  if (filename == NULL)
+    return;
+
+  /* Allocate a picture buffer */
+  in = pic_alloc(640, 480, 3, NULL);
+
+  printf("File to save to: %s\n", filename);
+
+  for (i=479; i>=0; i--) {
+    glReadPixels(0, 479-i, 640, 1, GL_RGB, GL_UNSIGNED_BYTE,
+                 &in->pix[i*in->nx*in->bpp]);
+  }
+
+  if (jpeg_write(filename, in))
+    printf("File saved Successfully\n");
+  else
+    printf("Error in Saving\n");
+
+  pic_free(in);
+}
+
+
+
+
+
+
+int main (int argc, char ** argv)
 {
   if (argc<2)
   {  
@@ -275,30 +251,49 @@ int main (int argc, char **argv)
     exit(1);
   }
 
-  heightData = jpeg_read(argv[1], NULL);
-  if (!heightData)
+  g_pHeightData = jpeg_read(argv[1], NULL);
+  if (!g_pHeightData)
   {
     printf ("error reading %s.\n", argv[1]);
     exit(1);
   }
 
-  /* create window */
   glutInit(&argc,argv);
+  /*
+    create a window here..should be double buffered and use depth testing
+    the code past here will segfault if you don't have a window set up....
+    replace the exit once you add those calls.
+  */
+  // exit(0);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
   glutInitWindowSize(WIDTH, HEIGHT);
-  glutCreateWindow("Assignment 1");
+  glutCreateWindow("Assignment 1 - Height Field");
 
-  /* set callbacks */
-  glutDisplayFunc(display); /* display callback */
-  glutMotionFunc(mousedrag);  /* mouse drag callback */
-  glutMouseFunc(mousebutton); /* mouse button callback */
-  glutReshapeFunc(reshape); /* reshape callback */
-  glutKeyboardFunc(keyboard); /* keyboard callback */
+  /* tells glut to use a particular display function to redraw */
+  glutDisplayFunc(display);
 
-  /* initialize GL */
-  init();
+  /* allow the user to quit using the right mouse button menu */
+  g_iMenuId = glutCreateMenu(menufunc);
+  glutSetMenu(g_iMenuId);
+  glutAddMenuEntry("Quit",0);
+  glutAttachMenu(GLUT_RIGHT_BUTTON);
 
-  /* enter event loop */
+  /* replace with any animate code */
+  glutIdleFunc(doIdle);
+
+  /* callback for mouse drags */
+  glutMotionFunc(mousedrag);
+  /* callback for idle mouse movement */
+  glutPassiveMotionFunc(mouseidle);
+  /* callback for mouse button changes */
+  glutMouseFunc(mousebutton);
+
+  /* callback for when the windows size has rechaped */
+  glutReshapeFunc(reshape);
+
+  /* do initialization */
+  myinit();
+
   glutMainLoop();
   return(0);
 }
