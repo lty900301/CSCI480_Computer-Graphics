@@ -9,7 +9,9 @@ Author: Josh Luo
   <dt>Compile instruction for Mac OS X</dt>
 </dl>
 
-For Mac OS X, you will  need the [pic image library](https://github.com/lty900301/CSCI480_Computer-Graphics/tree/master/pic). The makefile of the starter code assumes that the pic library locates one level above (i.e. if starter code == /Users/tom/code/assign1, then pic library should be in /Users/tom/code/pic). Please compile the pic library before compiling the starter code. Here is a sample sequence of commands that get everything compiled:
+For Mac OS X, you will  need the [pic image library](https://github.com/lty900301/CSCI480_Computer-Graphics/tree/master/pic). The makefile of the starter code assumes that the pic library locates one level above (i.e. if starter code == /Users/tom/code/assign1, then pic library should be in /Users/tom/code/pic). 
+
+Please compile the pic library before compiling the starter code. Here is a sample sequence of commands that get everything compiled:
 
 	> unzip pic_MacOS.zip
 	> unzip assign1_starterCode_macOS.zip
