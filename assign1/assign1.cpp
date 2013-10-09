@@ -78,7 +78,7 @@ void myinit()
 }
 
 // To discuss by catogarizing the rendering method
-// THis method is not good though. It takes more code than above
+// THis method is not good though. It takes more code than below
 // void drawHF2(){
 //   int width = g_pHeightData->nx, height = g_pHeightData->ny;
   
@@ -510,7 +510,7 @@ int main (int argc, char ** argv)
   }
   argvCount++;
 
-  if(argc >= argvCount){
+  if(argc > argvCount){
     g_pColorData = jpeg_read(argv[argvCount], NULL);
     if (!g_pColorData) {
       printf ("error reading %s.\n", argv[argvCount]);
