@@ -7,6 +7,7 @@ Assignments: http://dl.dropboxusercontent.com/u/91263185/CS480-f13/projects/inde
 
 1. Assignment 1 - Height Field
 ------------
+* This assignment was implemented on a Mac OS, using command line to compile. *
 
 <dl>
 	<dt>Decription</dt>
