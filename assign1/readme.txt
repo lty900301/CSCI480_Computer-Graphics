@@ -29,7 +29,5 @@ Extra credit functions realized:
 	4. Experiment with material and lighting properties. (use key 'g' as above).
 
 References:
-	http://profs.sci.univr.it/~colombar/html_openGL_tutorial/en/06depth_014.html
 	http://www.glprogramming.com/red/chapter05.html
 	http://www.glprogramming.com/red/chapter06.html
-	http://www.johndcook.com/blog/2009/08/24/algorithms-convert-color-grayscale/

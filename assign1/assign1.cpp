@@ -462,15 +462,12 @@ void saveScreenshot (char *filename)
   pic_free(in);
 }
 
-void *thread(void *ptr) {
-}
-
 void timer(int value){
   switch(value){
     case 0: 
       if(!animation) break;
       char filename[40];
-      sprintf(filename, "../screenshots/anim.%03d.jpg", screenShotsCount);
+      sprintf(filename, "../screenshots/%03d.jpg", screenShotsCount);
       saveScreenshot(filename);
       screenShotsCount++;
       if(screenShotsCount == 300) animation = false;
