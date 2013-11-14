@@ -28,3 +28,16 @@ Please compile the pic library before compiling the starter code. Here is a samp
 	> cd assign1
 	> make
 	> ./assign1 spiral.jpg
+
+2. Assignment 2 - Simulating a Roller Coaster
+------------
+* This assignment was implemented on a Mac OS, using command line to compile.
+
+<dl>
+	<dt>Decription</dt>
+	<dd>http://dl.dropboxusercontent.com/u/91263185/CS480-f13/projects/HW2/assign2.html</dd>
+  	<dt>Compile instruction for Mac OS X</dt>
+  	<dd>Please see Assignment 1 for more information</dd>
+</dl>
+
+Note: Please compile the pic library before compiling the starter code.
