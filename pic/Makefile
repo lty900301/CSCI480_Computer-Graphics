@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc -I/opt/X11/include 
 
 OBJS = pic.o xpic.o ppm.o adaptcm.o jpeg.o
 
