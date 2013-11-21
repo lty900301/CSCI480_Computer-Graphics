@@ -39,6 +39,7 @@ Keyboard functions:
 	- 'q' = 'Q': quit the application
 	- 'a' = 'A': start or stop the animation screenshots
 	- 'c' = 'C': open or close the support structure rendering
+	- 'l' = 'L': turn the light mode on or off
 
 Mouse functions:
 	Rotate: drag the mouse

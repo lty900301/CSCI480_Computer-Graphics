@@ -103,13 +103,11 @@ point V0;
 GLuint trackID, groundSkyID, crossID, columnID;
 
 /** lighting information **/
-bool lighting = true;
-// Sun light
-GLfloat light0_position[] = {0.0, 0.0, -1.0, 0.0};
-GLfloat lignt0_ambient[] = {0.0, 0.0, 0.0, 0.0};
-GLfloat light0_diffuse[] = {0.0, 1.0, 1.0, 1.0};
+bool lighting = false;
+GLfloat light0_position[] = {0.0, 0.0, 1.0, 0.0};;
+GLfloat light0_ambient[] = {0.0, 0.0, 0.0, 0.0};
+GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat light0_specular[] = {1.0, 1.0, 1.0, 1.0};
-
 
 
 /***** Calculation methods *****/
@@ -394,7 +392,9 @@ void timer(int value){
 void groundSkyDisplayList() {
   groundSkyID = glGenLists(1);
   glNewList(groundSkyID, GL_COMPILE);
-  glEnable(GL_TEXTURE_2D); 
+  glEnable(GL_TEXTURE_2D);
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+  glEnable(GL_COLOR_MATERIAL);
 
   glBindTexture(GL_TEXTURE_2D,textures[SKY_DOWN]);
   glBegin(GL_QUADS);
@@ -439,6 +439,7 @@ void groundSkyDisplayList() {
   glTexCoord2f(0,0); glVertex3f(-WORLD_SCALE,-WORLD_SCALE,+WORLD_SCALE);
   glEnd();
 
+  glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_TEXTURE_2D);
   glEndList();
 }
@@ -524,6 +525,10 @@ void trackDisplayList() {
   trackID = glGenLists(1);
   glNewList(trackID, GL_COMPILE);
 
+
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+  glEnable(GL_COLOR_MATERIAL);
+
   /* Draw the tow rails' 4 black edges */
   glLineWidth(3.0);
   glColor3f(0.0f,0.0f,0.0f); 
@@ -552,6 +557,8 @@ void trackDisplayList() {
     }
   }
   glEnd();
+
+  glDisable(GL_COLOR_MATERIAL);
 
   glColor3f(1.0f,1.0f,1.0f);
   glEndList();
@@ -583,6 +590,9 @@ void crossDisplayList() {
         np.x = np.x - RAIL_WIDTH_HEIGHT * b.x;
         np.y = np.y - RAIL_WIDTH_HEIGHT * b.y;
         np.z = np.z - RAIL_WIDTH_HEIGHT * b.z;
+
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+        glEnable(GL_COLOR_MATERIAL);
 
         glBindTexture(GL_TEXTURE_2D, textures[WOOD]); // 2 - Wood
         glBegin(GL_QUADS);
@@ -641,6 +651,8 @@ void crossDisplayList() {
         glTexCoord2f(1.0, 0.0); 
         glVertex3d(p.x-w/2.0*n.x-h*b.x, p.y-w/2.0*n.y-h*b.y, p.z-w/2.0*n.z-h*b.z);
         glEnd();
+
+        glDisable(GL_COLOR_MATERIAL);
       }
       count++;
     }
@@ -651,6 +663,9 @@ void crossDisplayList() {
 }
 
 void drawColumn(point p1, point p2, point n1, point n2, double f) {
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+  glEnable(GL_COLOR_MATERIAL);
+
   glBegin(GL_QUADS);
     // left
     glVertex3d(p1.x-f*n1.x, p1.y-f*n1.y, p1.z-f*n1.z);
@@ -673,6 +688,8 @@ void drawColumn(point p1, point p2, point n1, point n2, double f) {
     glVertex3d(p2.x+f*n2.x, p2.y+f*n2.y, -HEIGHT);
     glVertex3d(p2.x-f*n2.x, p2.y-f*n2.y, -HEIGHT);
   glEnd();
+
+  glDisable(GL_COLOR_MATERIAL);
 }
 
 /** display columns **/
@@ -721,6 +738,17 @@ double computeNewSpeed(double uCurrent, point p, point t) {
   return uCurrent + TIMESTEP * (divideFrom / divideBy);
 }
 
+/*
+ * Sets up the lighting for the OpenGL scene.
+ */
+void setUpLight() {
+  // Light from the top
+  glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, light0_specular);
+}
+
 /** set up the camera **/
 void setUpCamera() {
   point p, t, n, b, e, c;
@@ -754,23 +782,17 @@ void setUpCamera() {
   uCurrent = uNew;
 }
 
-/*
- * Sets up the lighting for the OpenGL scene.
- */
-void setUpLight() {
-    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lignt0_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, light0_specular);
-}
-
 /** display callback **/
 void display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // if(lighting) glEnable(GL_LIGHTING);
-  // else glDisable(GL_LIGHTING);
-  // glEnable(GL_LIGHT0);
+  if(lighting){
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+  } else {
+    glDisable(GL_LIGHT0);
+    glDisable(GL_LIGHTING);
+  }
 
   glPushMatrix();
   glLoadIdentity();
