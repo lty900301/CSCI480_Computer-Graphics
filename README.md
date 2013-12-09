@@ -40,4 +40,17 @@ Please compile the pic library before compiling the starter code. Here is a samp
   	<dd>Please see Assignment 1 for more information</dd>
 </dl>
 
-Note: Please compile the pic library before compiling the starter code.
+Note: Please compile the pic library before compiling the code.
+
+3. Assignment 3 - Ray Tracing
+------------
+* This assignment was implemented on a Mac OS, using command line to compile.
+
+<dl>
+	<dt>Decription</dt>
+	<dd>http://dl.dropboxusercontent.com/u/91263185/CS480-f13/projects/HW3/assign3.html</dd>
+  	<dt>Compile instruction for Mac OS X</dt>
+  	<dd>Please see Assignment 1 for more information</dd>
+</dl>
+
+Note: Please compile the pic library before compiling the code.

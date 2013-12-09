@@ -9,8 +9,7 @@ PIC_PATH = $(abspath $(CURDIR)/../pic)
 INCLUDE = -I$(PIC_PATH)
 LIBRARIES = -L$(PIC_PATH) -framework OpenGL -framework GLUT -lpicio $(PIC_PATH)/libjpeg.a
 
-
-COMPILER = g++
+COMPILER = g++ -Wno-deprecated -Wno-deprecated-writable-strings
 COMPILERFLAGS = -O3 $(INCLUDE)
 
 PROGRAM = assign3
